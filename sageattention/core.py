@@ -693,11 +693,7 @@ def sageattn_qk_int8_pv_fp8_cuda(
         q = torch.nn.functional.pad(q, (0, 128 - head_dim_og))
         k = torch.nn.functional.pad(k, (0, 128 - head_dim_og))
         v = torch.nn.functional.pad(v, (0, 128 - head_dim_og))
-    elif head_dim_og > 128 and head_dim_og < 256:
-        q = torch.nn.functional.pad(q, (0, 256 - head_dim_og))
-        k = torch.nn.functional.pad(k, (0, 256 - head_dim_og))
-        v = torch.nn.functional.pad(v, (0, 256 - head_dim_og))
-    elif head_dim_og > 256:
+    elif head_dim_og > 128:
         raise ValueError(f"Unsupported head_dim: {head_dim_og}")
 
     # assert last dim is contiguous
