@@ -47,11 +47,15 @@ if not SKIP_CUDA_BUILD:
     # Supported NVIDIA GPU architectures.
     SUPPORTED_ARCHS = {"8.0", "8.6", "8.9", "9.0", "10.0", "12.0", "12.1"}
 
+    # Torch 2.15 headers require C++20 for host and CUDA translation units.
+    # Keep C++17 for the older supported Torch builds, including their CUDA toolchains.
+    CXX_STANDARD = "c++20" if Version(torch.__version__).release[:2] >= (2, 15) else "c++17"
+
     # Compiler flags.
-    CXX_FLAGS = ["-g", "-O3", "-fopenmp", "-lgomp", "-std=c++17", "-DENABLE_BF16"]
+    CXX_FLAGS = ["-g", "-O3", "-fopenmp", "-lgomp", f"-std={CXX_STANDARD}", "-DENABLE_BF16"]
     NVCC_FLAGS = [
         "-O3",
-        "-std=c++17",
+        f"-std={CXX_STANDARD}",
         "-U__CUDA_NO_HALF_OPERATORS__",
         "-U__CUDA_NO_HALF_CONVERSIONS__",
         "--use_fast_math",

@@ -54,6 +54,8 @@ if not SKIP_CUDA_BUILD:
     print("\n\ntorch.__version__  = {}\n\n".format(torch.__version__))
     TORCH_MAJOR = int(torch.__version__.split(".")[0])
     TORCH_MINOR = int(torch.__version__.split(".")[1])
+    # Match the host and NVCC language level to the installed Torch headers.
+    CXX_STANDARD = "c++20" if (TORCH_MAJOR, TORCH_MINOR) >= (2, 15) else "c++17"
 
     cc_flag = []
     _, bare_metal_version = get_cuda_bare_metal_version(CUDA_HOME)
@@ -88,7 +90,7 @@ if not SKIP_CUDA_BUILD:
     nvcc_flags = [
         "-O3",
         # "-O0",
-        "-std=c++17",
+        f"-std={CXX_STANDARD}",
         "-U__CUDA_NO_HALF_OPERATORS__",
         "-U__CUDA_NO_HALF_CONVERSIONS__",
         "-U__CUDA_NO_BFLOAT16_OPERATORS__",
@@ -119,7 +121,7 @@ if not SKIP_CUDA_BUILD:
             name="fp4attn_cuda",
             sources=["sageattn3/blackwell/api.cu"],
             extra_compile_args={
-                "cxx": ["-O3", "-std=c++17"],
+                "cxx": ["-O3", f"-std={CXX_STANDARD}"],
                 "nvcc": append_nvcc_threads(
                     nvcc_flags + ["-DEXECMODE=0"] + cc_flag
                 ),
@@ -134,7 +136,7 @@ if not SKIP_CUDA_BUILD:
             name="fp4quant_cuda",
             sources=["sageattn3/quantization/fp4_quantization_4d.cu"],
             extra_compile_args={
-                "cxx": ["-O3", "-std=c++17"],
+                "cxx": ["-O3", f"-std={CXX_STANDARD}"],
                 "nvcc": append_nvcc_threads(
                     nvcc_flags + ["-DEXECMODE=0"] + cc_flag
                 ),
